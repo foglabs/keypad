@@ -1,26 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+const BACKEND = 'ws://' + window.location.hostname + ':8000';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+// may not need this
+// import axios_lib from 'axios';
+// const axios = axios_lib.create({
+//   baseURL: BACKEND + ':4000',
+// });
+
+import React, { Component } from 'react';
+import { w3cwebsocket as W3CWebSocket } from "websocket";
+
+// 'ws://localhost:8000'
+const client = new W3CWebSocket(BACKEND);
+
+class App extends Component {
+  componentWillMount() {
+    client.onopen = () => {
+      console.log('WebSocket Client Connected');
+    };
+    client.onmessage = (message) => {
+      console.log(message);
+    };
+  }
+  
+  render() {
+    return (
+      <div>
+        Practical Intro To WebSockets.
+      </div>
+    );
+  }
 }
 
 export default App;
