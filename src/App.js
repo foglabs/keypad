@@ -44,7 +44,6 @@ class App extends Component {
   componentWillMount() {
     client.onopen = () => {
       console.log('WebSocket Client Connectedzz');
-
     };
 
     client.onmessage = (message) => {

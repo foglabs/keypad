@@ -2,6 +2,8 @@ const webSocketsServerPort = 8000;
 const webSocketServer = require('websocket').server;
 const http = require('http');
 
+const MASTER_KEY = '123457'
+
 // I'm maintaining all active connections in this object
 const clients = {};
 const client_modes = {}
@@ -22,18 +24,37 @@ const wsServer = new webSocketServer({
   httpServer: server
 });
 
-wsServer.on('request', function(request) {
-  var userID = getUniqueID();
-  console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
-  // You can rewrite this part of the code to accept only the requests from allowed origin
-  const connection = request.accept(null, request.origin);
-  clients[userID] = connection;
-  var modas = ['a','b','c','d','e','f'];    
-  var mod = modas[Math.floor(Math.random()*modas.length)];
-  client_modes[userID] = mod;
 
-  let data = JSON.stringify({userid: userID, mode: mod});
-  clients[userID].send(data);
+// connect in the first place
+wsServer.on('request', function(request) {
+
+  // we doin this REGARDLESS
+  var userID = getUniqueID();
+
+  let origin = request.origin;
+  console.log((new Date()) + ' Recieved a new connection from origin ' + origin + '.');
+  // You can rewrite this part of the code to accept only the requests from allowed origin (if ya feel that)
+  const connection = request.accept(null, origin);
+
+  clients[userID] = connection;
+  
+  if(origin.endsWith('m')){
+    // master
+    
+    // dont need to send id back.. for now
+    master = userID;
+
+  } else if(origin.endsWith('p')) {
+  
+    // player
+    var modas = ['a','b','c','d','e','f'];    
+    var mod = modas[Math.floor(Math.random()*modas.length)];
+    client_modes[userID] = mod;
+
+    let data = JSON.stringify({userid: userID, mode: mod});
+    clients[userID].send(data);    
+  }
+
 
   console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients))
 
