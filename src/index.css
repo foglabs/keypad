@@ -17,9 +17,30 @@ code {
   vertical-align: middle;
   text-align: center; 
   display: inline-block;
-  background-color: #346;
+  background-color: #639;
+  color: #fff;
   width: 33vw;
   min-width: 33vw;
   height: 33vh;
   min-height: 33vh;
+  box-shadow: 5px 5px 5px 5px;
 }
+
+.key:active {
+  vertical-align: middle;
+  text-align: center; 
+  display: inline-block;
+  background-color: #fff;
+  width: 33vw;
+  min-width: 33vw;
+  height: 33vh;
+  min-height: 33vh;
+  box-shadow: 5px 5px 5px 5px;
+}
+
+.key .number {
+  font-size: 8vh;
+  position: relative;
+  top: 10vh;
+}
+

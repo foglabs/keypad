@@ -7,13 +7,44 @@ const MASTER_KEY = '123457'
 // I'm maintaining all active connections in this object
 const clients = {};
 const client_modes = {}
-const master = ''
+
+let master = ''
 
 // This code generates unique userid for everyuser.
 const getUniqueID = () => {
   const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
   return s4() + s4() + '-' + s4();
 };
+
+const note = function(int){
+  int = int % 24
+  switch(int){
+    case 0: return 'C1';
+    case 1: return 'Cs1';
+    case 2: return 'D1';
+    case 3: return 'Ds1';
+    case 4: return 'E1';
+    case 5: return 'F1';
+    case 6: return 'Fs1';
+    case 7: return 'G1';
+    case 8: return 'Gs1';
+    case 9: return 'A1';
+    case 10: return 'As1';
+    case 11: return 'B1';
+    case 12: return 'C2';
+    case 13: return 'Cs2';
+    case 14: return 'D2';
+    case 15: return 'Ds2';
+    case 16: return 'E2';
+    case 17: return 'F2';
+    case 18: return 'Fs2';
+    case 19: return 'G2';
+    case 20: return 'Gs2';
+    case 21: return 'A2';
+    case 22: return 'As2';
+    case 23: return 'B2';
+  }
+}
 
 // Spinning the http server and the websocket server.
 const server = http.createServer();
@@ -23,7 +54,6 @@ console.log('kickin that ass bro')
 const wsServer = new webSocketServer({
   httpServer: server
 });
-
 
 // connect in the first place
 wsServer.on('request', function(request) {
@@ -38,13 +68,16 @@ wsServer.on('request', function(request) {
 
   clients[userID] = connection;
   
-  if(origin.endsWith('m')){
+  // if(origin.endsWith('m')){
+  if(origin.endsWith('3001')){
     // master
     
     // dont need to send id back.. for now
+    console.log('Master Was Set ' + userID)
     master = userID;
 
-  } else if(origin.endsWith('p')) {
+  // } else if(origin.endsWith('p')) {
+  } else if(origin.endsWith('3000')) {
   
     // player
     var modas = ['a','b','c','d','e','f'];    
@@ -52,9 +85,8 @@ wsServer.on('request', function(request) {
     client_modes[userID] = mod;
 
     let data = JSON.stringify({userid: userID, mode: mod});
-    clients[userID].send(data);    
+    clients[userID].send(data);
   }
-
 
   console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients))
 
@@ -67,17 +99,14 @@ wsServer.on('request', function(request) {
       let data = JSON.parse(message.utf8Data);
       console.log(data)
 
-      let note = client_modes[data.userid] + data.note;
+      // get the mode, get the note - boom
+      let note_name = client_modes[data.userid] + data.note;
 
       // broadcast note to master connection
       if(clients[master]){
-        clients[master].send(note);
+        console.log('found master ' + master)
+        clients[master].send(note_name);
       }
     }
-
-    //     connection.sendUTF(message.utf8Data);
-    // } else if (message.type === 'binary') {
-    //     console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-    //     connection.sendBytes(message.binaryData);
   });
 });

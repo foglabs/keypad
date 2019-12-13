@@ -76,7 +76,9 @@ class App extends Component {
 function Key (props){
   return (
     <div className="key" onClick={ props.onClick } >
-      { props.number + 1 }
+      <div className="number">
+        { props.number + 1 }
+      </div>
     </div>
   );
 }
