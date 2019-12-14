@@ -7,8 +7,11 @@ import React, { Component } from 'react';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 // 'ws://localhost:8000'
-const BACKEND = 'ws://' + window.location.hostname + ':8000';
-const client = new W3CWebSocket(BACKEND);
+const URL = window.location.href;
+// not actually used here, just for symmetry with -master
+const BACKEND = window.location.host;
+const SOCKET_BACKEND = 'ws://' + window.location.hostname + ':8000';
+const client = new W3CWebSocket(SOCKET_BACKEND);
 
 // var killCookie = function() {
 //   document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
@@ -44,6 +47,8 @@ class App extends Component {
   componentWillMount() {
     client.onopen = () => {
       console.log('WebSocket Client Connectedzz');
+      let data = JSON.stringify({url: URL});
+      client.send(data);
     };
 
     client.onmessage = (message) => {

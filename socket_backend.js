@@ -7,6 +7,7 @@ const MASTER_KEY = '123457'
 // I'm maintaining all active connections in this object
 const clients = {};
 const client_modes = {}
+const client_ready = {}
 
 let master = ''
 
@@ -67,26 +68,6 @@ wsServer.on('request', function(request) {
   const connection = request.accept(null, origin);
 
   clients[userID] = connection;
-  
-  // if(origin.endsWith('m')){
-  if(origin.endsWith('3001')){
-    // master
-    
-    // dont need to send id back.. for now
-    console.log('Master Was Set ' + userID)
-    master = userID;
-
-  // } else if(origin.endsWith('p')) {
-  } else if(origin.endsWith('3000')) {
-  
-    // player
-    var modas = ['a','b','c','d','e','f'];    
-    var mod = modas[Math.floor(Math.random()*modas.length)];
-    client_modes[userID] = mod;
-
-    let data = JSON.stringify({userid: userID, mode: mod});
-    clients[userID].send(data);
-  }
 
   console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients))
 
@@ -99,14 +80,42 @@ wsServer.on('request', function(request) {
       let data = JSON.parse(message.utf8Data);
       console.log(data)
 
-      // get the mode, get the note - boom
-      let note_name = client_modes[data.userid] + data.note;
+      // get origin from client!
+      if(!client_ready[userID]) {
 
-      // broadcast note to master connection
-      if(clients[master]){
-        console.log('found master ' + master)
-        clients[master].send(note_name);
+        if(data.url.endsWith('m')){
+        // if(origin.endsWith('3001')){
+          // master
+          
+          // dont need to send id back.. for now
+          console.log('Master Was Set ' + userID)
+          master = userID;
+
+        // } else if(origin.endsWith('3000')) {
+        } else {
+          // player
+          var modas = ['a','b','c','d','e','f'];    
+          var mod = modas[Math.floor(Math.random()*modas.length)];
+          client_modes[userID] = mod;
+
+          let data = JSON.stringify({userid: userID, mode: mod});
+          clients[userID].send(data);
+        }
+
+        client_ready[userID] = true;
+
+      } else {
+        // get the mode, get the note - boom
+        let note_name = client_modes[data.userid] + data.note;
+
+        // broadcast note to master connection
+        if(clients[master]){
+          console.log('found master ' + master)
+          clients[master].send(note_name);
+        }
+
       }
+      
     }
   });
 });
